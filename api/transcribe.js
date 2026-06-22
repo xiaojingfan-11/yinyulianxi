@@ -1,6 +1,14 @@
 const maxAudioBytes = 20 * 1024 * 1024;
 
 module.exports = async function handler(request, response) {
+  setCors(response);
+
+  if (request.method === "OPTIONS") {
+    response.statusCode = 204;
+    response.end();
+    return;
+  }
+
   if (request.method !== "POST") {
     sendJson(response, 405, { error: "Method not allowed." });
     return;
@@ -61,9 +69,16 @@ module.exports = async function handler(request, response) {
 
 function sendJson(response, status, data) {
   response.statusCode = status;
+  setCors(response);
+  response.end(JSON.stringify(data));
+}
+
+function setCors(response) {
   response.setHeader("Content-Type", "application/json; charset=utf-8");
   response.setHeader("Cache-Control", "no-store");
-  response.end(JSON.stringify(data));
+  response.setHeader("Access-Control-Allow-Origin", "*");
+  response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
 
 function audioExtension(contentType) {

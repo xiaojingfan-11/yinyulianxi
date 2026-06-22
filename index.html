@@ -1167,10 +1167,10 @@
         mediaRecorder.addEventListener("stop", handleRecordingStop, { once: true });
         mediaRecorder.start();
         els.listenBtn.textContent = "停止并核对";
-        els.speechStatus.textContent = "正在录音，请读出当前英文。读完可点“停止并核对”。";
+        els.speechStatus.textContent = "正在录音，请读出当前英文。读完立刻点“停止并核对”，会更快。";
         recorderTimer = setTimeout(() => {
           if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
-        }, 8500);
+        }, 5000);
       } catch (error) {
         els.speechStatus.textContent = error.name === "NotAllowedError"
           ? "麦克风权限被拒绝，请允许浏览器使用麦克风。"
