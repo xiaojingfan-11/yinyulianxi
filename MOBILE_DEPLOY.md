@@ -35,6 +35,8 @@
 4. 在项目环境变量里添加 `OPENAI_API_KEY`。
 5. 部署完成后，用 iPhone Safari 打开 Vercel 提供的 HTTPS 地址。
 
+Vercel 静态文件来自 `public/` 目录。如果修改了根目录静态页面，先运行 `sync-public.ps1` 同步。
+
 ## iPhone 添加到主屏幕
 
 1. 用 Safari 打开部署后的 HTTPS 地址。

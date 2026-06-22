@@ -1,0 +1,19 @@
+{
+  "name": "英语盲读练习",
+  "short_name": "英语练习",
+  "description": "日常短句和生活词汇盲读练习工具",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f8f4",
+  "theme_color": "#12645f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

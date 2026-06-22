@@ -39,3 +39,15 @@ http://127.0.0.1:8765/index.html
 ```powershell
 setx OPENAI_API_KEY "你的 OpenAI API Key"
 ```
+
+## Vercel
+
+Vercel 使用 `public/` 目录作为静态网站根目录，`api/` 目录作为后端函数。
+
+如果修改了根目录下的静态文件，运行：
+
+```powershell
+.\sync-public.ps1
+```
+
+然后提交并推送。
