@@ -1096,6 +1096,10 @@
         return;
       }
       if (canUseCloudRecording()) {
+        if (!hasCloudBackend()) {
+          els.speechStatus.textContent = "云端识别后端还没配置。GitHub Pages 不能直接识别录音，需要先部署 Vercel 后端并填写 API_BASE_URL。";
+          return;
+        }
         toggleCloudRecording();
         return;
       }
@@ -1137,6 +1141,11 @@
 
     function canUseCloudRecording() {
       return Boolean(navigator.mediaDevices?.getUserMedia && window.MediaRecorder && location.protocol !== "file:");
+    }
+
+    function hasCloudBackend() {
+      const config = window.ENGLISH_TRAINER_CONFIG || {};
+      return Boolean(String(config.API_BASE_URL || "").trim()) || !location.hostname.endsWith("github.io");
     }
 
     async function toggleCloudRecording() {
