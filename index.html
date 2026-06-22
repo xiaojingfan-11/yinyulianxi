@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#12645f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="英语盲读练习">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <script src="app-config.js"></script>
+  <title>英语盲读练习</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef2f0;
+      --ink: #182226;
+      --muted: #667174;
+      --line: #d7ddd8;
+      --panel: rgba(255, 255, 255, .84);
+      --paper: #fffdf8;
+      --panel-2: #eef7f4;
+      --brand: #12645f;
+      --brand-dark: #0d4c49;
+      --accent: #c95636;
+      --ok: #2d7a46;
+      --bad: #b64135;
+      --gold: #c99b38;
+      --shadow: 0 24px 60px rgba(24, 34, 38, .14);
+      --small-shadow: 0 10px 26px rgba(24, 34, 38, .10);
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(18, 100, 95, .14), transparent 34rem),
+        linear-gradient(135deg, #f8f4ea 0%, #edf4f2 48%, #f7f9f5 100%);
+      color: var(--ink);
+    }
+
+    button, select { font: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 22px clamp(16px, 4vw, 44px);
+      border-bottom: 1px solid rgba(24, 34, 38, .08);
+      background: rgba(255, 255, 255, .68);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: grid;
+      gap: 5px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 34px);
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(78px, 1fr));
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat {
+      border: 1px solid rgba(24, 34, 38, .08);
+      background: rgba(255, 255, 255, .78);
+      border-radius: 8px;
+      padding: 9px 12px;
+      min-width: 82px;
+      box-shadow: 0 8px 20px rgba(24, 34, 38, .06);
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: clamp(18px, 4vw, 42px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .practice, .side {
+      border: 1px solid rgba(24, 34, 38, .08);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+      backdrop-filter: blur(18px);
+    }
+
+    .practice {
+      min-height: 610px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(145px, 1fr));
+      gap: 12px;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 253, 248, .82);
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    select {
+      width: 100%;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 12px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .65);
+    }
+
+    select:focus-visible, .btn:focus-visible {
+      outline: 3px solid rgba(18, 100, 95, .22);
+      outline-offset: 2px;
+    }
+
+    .progress-wrap {
+      display: grid;
+      gap: 8px;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, .56);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .progress {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e3e7e2;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--brand), var(--gold));
+      transition: width .22s ease;
+    }
+
+    .stage {
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 20px;
+      padding: clamp(24px, 5vw, 56px);
+      text-align: center;
+    }
+
+    .tagline {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pill {
+      border: 1px solid rgba(24, 34, 38, .08);
+      background: rgba(255, 255, 255, .82);
+      border-radius: 999px;
+      padding: 7px 11px;
+      box-shadow: 0 5px 14px rgba(24, 34, 38, .06);
+    }
+
+    .pill.review {
+      border-color: rgba(182, 65, 53, .24);
+      color: var(--bad);
+      background: #fff4f1;
+    }
+
+    .prompt {
+      width: min(780px, 100%);
+      min-height: 230px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 14px;
+      padding: clamp(28px, 5vw, 46px);
+      border: 1px solid rgba(18, 100, 95, .20);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .98), rgba(255, 253, 248, .98));
+      border-radius: 8px;
+      box-shadow: var(--small-shadow);
+      position: relative;
+    }
+
+    .prompt::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px dashed rgba(18, 100, 95, .16);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+    .prompt-text {
+      margin: 0;
+      max-width: 100%;
+      font-size: clamp(44px, 7vw, 82px);
+      font-weight: 800;
+      line-height: 1.08;
+      overflow-wrap: anywhere;
+      position: relative;
+    }
+
+    .sentence .prompt-text {
+      font-size: clamp(31px, 5vw, 56px);
+    }
+
+    .prompt-phonetic {
+      display: none;
+      position: relative;
+      color: var(--accent);
+      font-size: clamp(18px, 2.4vw, 26px);
+      font-weight: 800;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .prompt-phonetic.visible {
+      display: block;
+    }
+
+    .speech-panel {
+      width: min(780px, 100%);
+      display: grid;
+      gap: 8px;
+      text-align: left;
+      border: 1px solid rgba(24, 34, 38, .08);
+      background: rgba(255, 255, 255, .78);
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 6px 18px rgba(24, 34, 38, .06);
+    }
+
+    .speech-status {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .speech-heard {
+      display: none;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .speech-heard.visible {
+      display: block;
+    }
+
+    .speech-score {
+      display: none;
+      width: max-content;
+      max-width: 100%;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--brand);
+      background: #eef7f4;
+      border: 1px solid rgba(18, 100, 95, .16);
+    }
+
+    .speech-score.visible {
+      display: inline-block;
+    }
+
+    .speech-score.good {
+      color: var(--ok);
+      background: #eef8ef;
+      border-color: rgba(45, 122, 70, .18);
+    }
+
+    .speech-score.try {
+      color: var(--bad);
+      background: #fff4f1;
+      border-color: rgba(182, 65, 53, .18);
+    }
+
+    .mic-meter {
+      display: grid;
+      gap: 6px;
+    }
+
+    .mic-meter-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mic-meter-track {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e3e7e2;
+    }
+
+    .mic-meter-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--brand), var(--gold), var(--accent));
+      transition: width .08s linear;
+    }
+
+    .answer {
+      width: min(780px, 100%);
+      display: none;
+      gap: 12px;
+      text-align: left;
+      border: 1px solid rgba(18, 100, 95, .18);
+      border-left: 5px solid var(--brand);
+      padding: 17px 18px;
+      background: var(--panel-2);
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(18, 100, 95, .08);
+    }
+
+    .answer.visible { display: grid; }
+
+    .meaning {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .phonetic {
+      color: var(--accent);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .example {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .empty-state {
+      width: min(780px, 100%);
+      display: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      color: var(--muted);
+      line-height: 1.7;
+      box-shadow: var(--small-shadow);
+    }
+
+    .empty-state.visible { display: block; }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 253, 248, .82);
+    }
+
+    .btn {
+      min-height: 44px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 0 18px;
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--ink);
+      background: #fff;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+      box-shadow: 0 6px 14px rgba(24, 34, 38, .08);
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(24, 34, 38, .14);
+    }
+
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .primary { background: var(--brand); color: #fff; }
+    .primary:hover:not(:disabled) { background: var(--brand-dark); }
+    .accent { background: var(--accent); color: #fff; }
+    .correct { background: var(--ok); color: #fff; }
+    .wrong { background: var(--bad); color: #fff; }
+    .ghost { border-color: var(--line); color: var(--brand); }
+
+    .side {
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .side section {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid rgba(24, 34, 38, .08);
+      background: rgba(255, 253, 248, .72);
+      border-radius: 8px;
+    }
+
+    .side h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .tip {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      max-height: 250px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .item {
+      border: 1px solid rgba(24, 34, 38, .08);
+      border-radius: 8px;
+      padding: 10px 11px;
+      background: #fff;
+      display: grid;
+      gap: 4px;
+      font-size: 14px;
+      box-shadow: 0 5px 14px rgba(24, 34, 38, .05);
+    }
+
+    .item strong { overflow-wrap: anywhere; }
+    .item span { color: var(--muted); }
+
+    .wrong-menu {
+      border-color: rgba(182, 65, 53, .16) !important;
+      background: rgba(255, 246, 243, .78) !important;
+    }
+
+    @media (max-width: 880px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .stats {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      main { grid-template-columns: 1fr; }
+      .practice { min-height: auto; }
+      .toolbar { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        background: #f6f8f4;
+      }
+
+      header {
+        padding: 16px;
+      }
+
+      main {
+        padding: 12px;
+        gap: 12px;
+      }
+
+      .stats {
+        gap: 8px;
+      }
+
+      .stat {
+        padding: 8px 10px;
+      }
+
+      .stage {
+        padding: 18px 12px;
+      }
+
+      .prompt {
+        min-height: 190px;
+        padding: 28px 18px;
+      }
+
+      .prompt::before {
+        inset: 8px;
+      }
+
+      .actions {
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        justify-content: stretch;
+        padding: 10px;
+      }
+
+      .actions .btn {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 0;
+        padding: 0 10px;
+        font-size: 14px;
+      }
+
+      .side {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <h1>英语盲读练习</h1>
+        <p class="subtitle">日常短句和生活词汇，先盲练，再对答案。</p>
+      </div>
+      <div class="stats" aria-live="polite">
+        <div class="stat">已练 <strong id="doneCount">0</strong></div>
+        <div class="stat">答对 <strong id="rightCount">0</strong></div>
+        <div class="stat">答错 <strong id="wrongCount">0</strong></div>
+        <div class="stat">剩余 <strong id="leftCount">0</strong></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="practice" aria-label="练习区">
+        <div class="toolbar">
+          <label class="field">
+            类型
+            <select id="typeFilter">
+              <option value="all">全部</option>
+              <option value="word">单词</option>
+              <option value="phrase">短句</option>
+            </select>
+          </label>
+          <label class="field">
+            场景
+            <select id="sceneFilter">
+              <option value="all">全部生活场景</option>
+            </select>
+          </label>
+          <label class="field">
+            模式
+            <select id="modeFilter">
+              <option value="blind-read">盲读：看英文读出来</option>
+              <option value="blind-meaning">盲认：看中文想英文</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="progress-wrap" aria-label="本轮进度">
+          <div class="progress-meta">
+            <span id="progressText">本轮进度 0%</span>
+            <span id="roundText">准备开始</span>
+          </div>
+          <div class="progress">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+
+        <div class="stage">
+          <div class="tagline">
+            <span class="pill" id="typeLabel">单词</span>
+            <span class="pill" id="sceneLabel">日常</span>
+            <span class="pill" id="roundLabel">正常练习</span>
+          </div>
+          <div class="prompt" id="promptBox">
+            <p class="prompt-text" id="promptText">Ready?</p>
+            <div class="prompt-phonetic" id="promptPhonetic"></div>
+          </div>
+          <div class="speech-panel" id="speechPanel">
+            <div class="speech-status" id="speechStatus">点“开始朗读核对”，读出当前英文。</div>
+            <div class="speech-heard" id="speechHeard"></div>
+            <div class="speech-score" id="speechScore"></div>
+            <div class="mic-meter">
+              <div class="mic-meter-label" id="micStatus">麦克风未测试</div>
+              <div class="mic-meter-track">
+                <div class="mic-meter-fill" id="micMeterFill"></div>
+              </div>
+            </div>
+          </div>
+          <div class="answer" id="answerBox">
+            <p class="meaning" id="meaningText"></p>
+            <div class="phonetic" id="phoneticText"></div>
+            <div class="example" id="exampleText"></div>
+          </div>
+          <div class="empty-state" id="emptyState"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn ghost" id="speakBtn" type="button">播放读音</button>
+          <button class="btn ghost" id="micTestBtn" type="button">测试麦克风</button>
+          <button class="btn ghost" id="listenBtn" type="button">开始朗读核对</button>
+          <button class="btn primary" id="finishBtn" type="button">完成，显示答案</button>
+          <button class="btn correct" id="rightBtn" type="button" disabled>答对</button>
+          <button class="btn wrong" id="wrongBtn" type="button" disabled>答错</button>
+          <button class="btn accent" id="nextBtn" type="button">跳过</button>
+        </div>
+      </section>
+
+      <aside class="side" aria-label="辅助信息">
+        <section>
+          <h2>练习节奏</h2>
+          <p class="tip">先盲读或盲认，点“完成”看答案，再按真实情况选“答对”或“答错”。</p>
+          <p class="tip">当前范围全部练完后，如果有错题，系统会自动进入错题复练。</p>
+        </section>
+
+        <section class="wrong-menu">
+          <h2>答错菜单</h2>
+          <p class="tip" id="wrongSummary">暂无错题。</p>
+          <button class="btn ghost" id="reviewWrongBtn" type="button" disabled>开始错题复练</button>
+          <div class="list" id="wrongList"></div>
+        </section>
+
+        <section>
+          <h2>最近练过</h2>
+          <div class="list" id="historyList"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const bank = [
+      { id: "w-breakfast", type: "word", scene: "吃饭", en: "breakfast", zh: "早餐", phonetic: "/'brekfast/", example: "I usually have breakfast at seven." },
+      { id: "w-lunch", type: "word", scene: "吃饭", en: "lunch", zh: "午餐", phonetic: "/lunch/", example: "Let's have lunch together." },
+      { id: "w-dinner", type: "word", scene: "吃饭", en: "dinner", zh: "晚餐", phonetic: "/'din-er/", example: "Dinner is ready." },
+      { id: "w-water", type: "word", scene: "吃饭", en: "water", zh: "水", phonetic: "/'waw-ter/", example: "Can I have some water?" },
+      { id: "w-coffee", type: "word", scene: "吃饭", en: "coffee", zh: "咖啡", phonetic: "/'kaw-fee/", example: "I need a cup of coffee." },
+      { id: "w-receipt", type: "word", scene: "购物", en: "receipt", zh: "收据，小票", phonetic: "/ri-'seet/", example: "Can I get a receipt?" },
+      { id: "w-discount", type: "word", scene: "购物", en: "discount", zh: "折扣", phonetic: "/'dis-kount/", example: "Is there a discount?" },
+      { id: "w-cashier", type: "word", scene: "购物", en: "cashier", zh: "收银员", phonetic: "/ka-'sheer/", example: "The cashier is over there." },
+      { id: "w-umbrella", type: "word", scene: "出门", en: "umbrella", zh: "雨伞", phonetic: "/um-'brel-uh/", example: "Take an umbrella with you." },
+      { id: "w-wallet", type: "word", scene: "出门", en: "wallet", zh: "钱包", phonetic: "/'wol-it/", example: "I forgot my wallet." },
+      { id: "w-keys", type: "word", scene: "出门", en: "keys", zh: "钥匙", phonetic: "/keez/", example: "Where are my keys?" },
+      { id: "w-subway", type: "word", scene: "交通", en: "subway", zh: "地铁", phonetic: "/'sub-way/", example: "I take the subway to work." },
+      { id: "w-ticket", type: "word", scene: "交通", en: "ticket", zh: "票", phonetic: "/'tik-it/", example: "I bought a train ticket." },
+      { id: "w-station", type: "word", scene: "交通", en: "station", zh: "车站", phonetic: "/'stay-shun/", example: "The station is crowded." },
+      { id: "w-laundry", type: "word", scene: "家务", en: "laundry", zh: "洗衣物", phonetic: "/'lawn-dree/", example: "I need to do the laundry." },
+      { id: "w-trash", type: "word", scene: "家务", en: "trash", zh: "垃圾", phonetic: "/trash/", example: "Please take out the trash." },
+      { id: "w-meeting", type: "word", scene: "工作", en: "meeting", zh: "会议", phonetic: "/'mee-ting/", example: "The meeting starts at nine." },
+      { id: "w-deadline", type: "word", scene: "工作", en: "deadline", zh: "截止日期", phonetic: "/'ded-line/", example: "The deadline is Friday." },
+      { id: "p-eat", type: "phrase", scene: "吃饭", en: "What would you like to eat?", zh: "你想吃什么？", phonetic: "/wut wood yoo like tuh eet/", example: "What would you like to eat for dinner?" },
+      { id: "p-hungry", type: "phrase", scene: "吃饭", en: "I'm not very hungry.", zh: "我不是很饿。", phonetic: "/ime not vair-ee hung-gree/", example: "I'm not very hungry, so I'll just have soup." },
+      { id: "p-price", type: "phrase", scene: "购物", en: "How much is this?", zh: "这个多少钱？", phonetic: "/how much iz this/", example: "Excuse me, how much is this?" },
+      { id: "p-try-on", type: "phrase", scene: "购物", en: "Can I try it on?", zh: "我可以试穿吗？", phonetic: "/kan eye try it on/", example: "Can I try it on in a smaller size?" },
+      { id: "p-back-soon", type: "phrase", scene: "出门", en: "I'll be back soon.", zh: "我很快回来。", phonetic: "/ile bee bak soon/", example: "I'll be back soon. Don't wait for me." },
+      { id: "p-phone", type: "phrase", scene: "出门", en: "Don't forget your phone.", zh: "别忘了你的手机。", phonetic: "/dohnt fer-get yor fohn/", example: "Don't forget your phone before you leave." },
+      { id: "p-bus-stop", type: "phrase", scene: "交通", en: "Where is the nearest bus stop?", zh: "最近的公交站在哪里？", phonetic: "/wair iz thuh neer-est bus stop/", example: "Where is the nearest bus stop from here?" },
+      { id: "p-missed-train", type: "phrase", scene: "交通", en: "I missed the train.", zh: "我错过火车了。", phonetic: "/eye mist thuh trayn/", example: "I missed the train this morning." },
+      { id: "p-clean-table", type: "phrase", scene: "家务", en: "Could you clean the table?", zh: "你能擦一下桌子吗？", phonetic: "/kood yoo kleen thuh tay-bul/", example: "Could you clean the table after dinner?" },
+      { id: "p-messy", type: "phrase", scene: "家务", en: "The room is a little messy.", zh: "房间有点乱。", phonetic: "/thuh room iz uh lit-ul mes-ee/", example: "The room is a little messy today." },
+      { id: "p-send-later", type: "phrase", scene: "工作", en: "I'll send it later.", zh: "我晚点发给你。", phonetic: "/ile send it lay-ter/", example: "I'll send it later this afternoon." },
+      { id: "p-again", type: "phrase", scene: "工作", en: "Could you say that again?", zh: "你能再说一遍吗？", phonetic: "/kood yoo say that uh-gen/", example: "Sorry, could you say that again?" }
+    ];
+
+    const byId = new Map(bank.map(item => [item.id, item]));
+    const els = {
+      typeFilter: document.querySelector("#typeFilter"),
+      sceneFilter: document.querySelector("#sceneFilter"),
+      modeFilter: document.querySelector("#modeFilter"),
+      promptBox: document.querySelector("#promptBox"),
+      promptText: document.querySelector("#promptText"),
+      promptPhonetic: document.querySelector("#promptPhonetic"),
+      speechPanel: document.querySelector("#speechPanel"),
+      speechStatus: document.querySelector("#speechStatus"),
+      speechHeard: document.querySelector("#speechHeard"),
+      speechScore: document.querySelector("#speechScore"),
+      micStatus: document.querySelector("#micStatus"),
+      micMeterFill: document.querySelector("#micMeterFill"),
+      answerBox: document.querySelector("#answerBox"),
+      meaningText: document.querySelector("#meaningText"),
+      phoneticText: document.querySelector("#phoneticText"),
+      exampleText: document.querySelector("#exampleText"),
+      emptyState: document.querySelector("#emptyState"),
+      typeLabel: document.querySelector("#typeLabel"),
+      sceneLabel: document.querySelector("#sceneLabel"),
+      roundLabel: document.querySelector("#roundLabel"),
+      doneCount: document.querySelector("#doneCount"),
+      rightCount: document.querySelector("#rightCount"),
+      wrongCount: document.querySelector("#wrongCount"),
+      leftCount: document.querySelector("#leftCount"),
+      progressText: document.querySelector("#progressText"),
+      roundText: document.querySelector("#roundText"),
+      progressFill: document.querySelector("#progressFill"),
+      historyList: document.querySelector("#historyList"),
+      wrongList: document.querySelector("#wrongList"),
+      wrongSummary: document.querySelector("#wrongSummary"),
+      speakBtn: document.querySelector("#speakBtn"),
+      micTestBtn: document.querySelector("#micTestBtn"),
+      listenBtn: document.querySelector("#listenBtn"),
+      finishBtn: document.querySelector("#finishBtn"),
+      rightBtn: document.querySelector("#rightBtn"),
+      wrongBtn: document.querySelector("#wrongBtn"),
+      nextBtn: document.querySelector("#nextBtn"),
+      reviewWrongBtn: document.querySelector("#reviewWrongBtn")
+    };
+
+    let current = null;
+    let revealed = false;
+    let reviewMode = false;
+    let pool = [];
+    let roundTotal = 0;
+    let completedIds = new Set();
+    let wrongIds = new Set(JSON.parse(localStorage.getItem("englishTrainerWrongIds") || "[]"));
+    let history = JSON.parse(localStorage.getItem("englishTrainerHistory") || "[]");
+    let stats = JSON.parse(localStorage.getItem("englishTrainerStats") || '{"done":0,"right":0,"wrong":0}');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let listening = false;
+    let recognitionTimer = null;
+    let lastSpeechTranscript = "";
+    let micStream = null;
+    let micAudioContext = null;
+    let micAnimationId = null;
+    let micSource = null;
+    let micAnalyser = null;
+    let mediaRecorder = null;
+    let recorderStream = null;
+    let recorderChunks = [];
+    let recorderTimer = null;
+
+    function initScenes() {
+      const scenes = [...new Set(bank.map(item => item.scene))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+      scenes.forEach(scene => {
+        const option = document.createElement("option");
+        option.value = scene;
+        option.textContent = scene;
+        els.sceneFilter.append(option);
+      });
+    }
+
+    function filteredBank() {
+      return bank.filter(item => {
+        const typeOk = els.typeFilter.value === "all" || item.type === els.typeFilter.value;
+        const sceneOk = els.sceneFilter.value === "all" || item.scene === els.sceneFilter.value;
+        return typeOk && sceneOk;
+      });
+    }
+
+    function resetRound() {
+      reviewMode = false;
+      completedIds = new Set();
+      pool = shuffle(filteredBank().map(item => item.id));
+      roundTotal = pool.length;
+      pickNext();
+    }
+
+    function startWrongReview() {
+      const ids = [...wrongIds].filter(id => byId.has(id));
+      if (!ids.length) {
+        renderEmpty("现在没有错题，可以继续正常练习。");
+        return;
+      }
+      reviewMode = true;
+      completedIds = new Set();
+      pool = shuffle(ids);
+      roundTotal = pool.length;
+      pickNext();
+    }
+
+    function pickNext() {
+      stopListening();
+      current = null;
+      revealed = false;
+      els.answerBox.classList.remove("visible");
+      els.emptyState.classList.remove("visible");
+
+      if (!pool.length) {
+        if (!reviewMode && wrongIds.size) {
+          startWrongReview();
+          return;
+        }
+        const message = reviewMode
+          ? "错题复练完成。答对的题已经从答错菜单移除，剩下的可以继续复练。"
+          : "当前范围已经全部练完。没有错题时，可以换个场景或重新开始。";
+        renderEmpty(message);
+        renderStats();
+        return;
+      }
+
+      const nextId = pool.pop();
+      current = byId.get(nextId);
+      renderCard();
+    }
+
+    function renderCard() {
+      const isMeaningMode = els.modeFilter.value === "blind-meaning";
+      els.promptText.textContent = isMeaningMode ? current.zh : current.en;
+      els.promptPhonetic.textContent = isMeaningMode ? "" : current.phonetic;
+      els.promptPhonetic.classList.toggle("visible", !isMeaningMode);
+      els.promptBox.classList.toggle("sentence", current.type === "phrase" || isMeaningMode);
+      els.promptBox.style.display = "";
+      els.speechPanel.style.display = "";
+      resetSpeechPanel();
+      els.typeLabel.textContent = current.type === "word" ? "单词" : "短句";
+      els.sceneLabel.textContent = current.scene;
+      els.roundLabel.textContent = reviewMode ? "错题复练" : "正常练习";
+      els.roundLabel.classList.toggle("review", reviewMode);
+      els.meaningText.textContent = "";
+      els.phoneticText.textContent = "";
+      els.exampleText.textContent = "";
+      els.finishBtn.disabled = false;
+      els.finishBtn.textContent = "完成，显示答案";
+      els.listenBtn.disabled = !canUseCloudRecording() && !SpeechRecognition;
+      els.micTestBtn.disabled = !navigator.mediaDevices?.getUserMedia;
+      els.rightBtn.disabled = true;
+      els.wrongBtn.disabled = true;
+      els.nextBtn.disabled = false;
+      els.nextBtn.textContent = "跳过";
+      renderStats();
+    }
+
+    function renderEmpty(message) {
+      stopListening();
+      els.promptBox.style.display = "none";
+      els.speechPanel.style.display = "none";
+      els.answerBox.classList.remove("visible");
+      els.emptyState.textContent = message;
+      els.emptyState.classList.add("visible");
+      els.finishBtn.disabled = true;
+      els.listenBtn.disabled = true;
+      els.micTestBtn.disabled = true;
+      els.rightBtn.disabled = true;
+      els.wrongBtn.disabled = true;
+      els.nextBtn.disabled = false;
+      els.nextBtn.textContent = "重新开始";
+    }
+
+    function reveal() {
+      if (!current || revealed) return;
+      revealed = true;
+      els.answerBox.classList.add("visible");
+      els.meaningText.textContent = `${current.en}  -  ${current.zh}`;
+      els.phoneticText.textContent = current.phonetic;
+      els.exampleText.textContent = current.example;
+      els.finishBtn.textContent = "答案已显示";
+      els.finishBtn.disabled = true;
+      els.rightBtn.disabled = false;
+      els.wrongBtn.disabled = false;
+      els.nextBtn.textContent = "跳过";
+    }
+
+    function markResult(isRight) {
+      if (!current || !revealed) return;
+      completedIds.add(current.id);
+      stats.done += 1;
+      if (isRight) {
+        stats.right += 1;
+        wrongIds.delete(current.id);
+      } else {
+        stats.wrong += 1;
+        wrongIds.add(current.id);
+      }
+      saveProgress();
+      addHistory(current, isRight);
+      renderWrongMenu();
+      pickNext();
+    }
+
+    function skipOrRestart() {
+      if (!current) {
+        resetRound();
+        els.nextBtn.textContent = "跳过";
+        return;
+      }
+      pickNext();
+    }
+
+    function addHistory(item, isRight) {
+      history = [
+        { id: item.id, en: item.en, zh: item.zh, scene: item.scene, result: isRight ? "答对" : "答错" },
+        ...history.filter(old => old.id !== item.id)
+      ].slice(0, 12);
+      localStorage.setItem("englishTrainerHistory", JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      els.historyList.innerHTML = "";
+      if (!history.length) {
+        els.historyList.append(createTip("完成第一题后这里会记录最近内容。"));
+        return;
+      }
+      history.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "item";
+        row.innerHTML = `<strong>${escapeHtml(item.en)}</strong><span>${escapeHtml(item.zh)} · ${escapeHtml(item.scene)} · ${escapeHtml(item.result)}</span>`;
+        els.historyList.append(row);
+      });
+    }
+
+    function renderWrongMenu() {
+      const items = [...wrongIds].map(id => byId.get(id)).filter(Boolean);
+      els.wrongList.innerHTML = "";
+      els.wrongSummary.textContent = items.length ? `还有 ${items.length} 个错题需要复练。` : "暂无错题。";
+      els.reviewWrongBtn.disabled = !items.length;
+      if (!items.length) {
+        els.wrongList.append(createTip("答错后会自动收进这里。"));
+        return;
+      }
+      items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "item";
+        row.innerHTML = `<strong>${escapeHtml(item.en)}</strong><span>${escapeHtml(item.zh)} · ${escapeHtml(item.scene)}</span>`;
+        els.wrongList.append(row);
+      });
+    }
+
+    function renderStats() {
+      const left = pool.length + (current ? 1 : 0);
+      const progress = roundTotal ? Math.round(((roundTotal - left) / roundTotal) * 100) : 100;
+      els.doneCount.textContent = stats.done;
+      els.rightCount.textContent = stats.right;
+      els.wrongCount.textContent = wrongIds.size;
+      els.leftCount.textContent = left;
+      els.progressText.textContent = `本轮进度 ${Math.max(0, Math.min(progress, 100))}%`;
+      els.roundText.textContent = reviewMode ? "错题复练中" : "正常练习中";
+      els.progressFill.style.width = `${Math.max(0, Math.min(progress, 100))}%`;
+    }
+
+    function speak() {
+      if (!current || !("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(current.en);
+      utterance.lang = "en-US";
+      utterance.rate = 0.82;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function setupSpeechRecognition() {
+      if (!SpeechRecognition) {
+        if (!canUseCloudRecording()) {
+          els.listenBtn.disabled = true;
+          els.listenBtn.textContent = "浏览器不支持语音核对";
+          els.speechStatus.textContent = "当前浏览器不支持语音识别或录音上传。";
+        }
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.addEventListener("start", () => {
+        listening = true;
+        lastSpeechTranscript = "";
+        els.listenBtn.textContent = "正在听...";
+        clearTimeout(recognitionTimer);
+        recognitionTimer = setTimeout(() => {
+          if (listening) recognition.stop();
+        }, 9000);
+        els.speechStatus.textContent = "正在听你朗读，读完后会自动核对。";
+        els.speechHeard.classList.remove("visible");
+        els.speechScore.className = "speech-score";
+      });
+
+      recognition.addEventListener("audiostart", () => {
+        els.speechStatus.textContent = "麦克风已被语音识别接入，请开始朗读。";
+      });
+
+      recognition.addEventListener("soundstart", () => {
+        els.speechStatus.textContent = "检测到声音，继续读完整句。";
+      });
+
+      recognition.addEventListener("speechstart", () => {
+        els.speechStatus.textContent = "检测到语音，正在识别。";
+      });
+
+      recognition.addEventListener("result", event => {
+        let finalTranscript = "";
+        let interimTranscript = "";
+        for (let i = event.resultIndex; i < event.results.length; i += 1) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        if (interimTranscript) {
+          lastSpeechTranscript = interimTranscript.trim();
+          els.speechStatus.textContent = `正在识别：${interimTranscript}`;
+        }
+        if (finalTranscript.trim()) {
+          lastSpeechTranscript = finalTranscript.trim();
+          clearTimeout(recognitionTimer);
+          showSpeechResult(finalTranscript.trim());
+          recognition.stop();
+        }
+      });
+
+      recognition.addEventListener("error", event => {
+        clearTimeout(recognitionTimer);
+        if (event.error === "no-speech" && lastSpeechTranscript) {
+          showSpeechResult(lastSpeechTranscript);
+          return;
+        }
+        const messages = {
+          "not-allowed": "麦克风权限被拒绝，请允许浏览器使用麦克风。",
+          "no-speech": "语音识别没有检测到人声。请停止麦克风测试后再点朗读核对，并靠近麦克风读完整句。",
+          "audio-capture": "没有检测到可用麦克风，请检查系统输入设备。",
+          "network": "语音识别服务连接失败，可以稍后重试或换 Chrome/Edge。"
+        };
+        const message = messages[event.error] || "这次没有听清，可以靠近麦克风再读一遍。";
+        els.speechStatus.textContent = message;
+      });
+
+      recognition.addEventListener("end", () => {
+        clearTimeout(recognitionTimer);
+        listening = false;
+        els.listenBtn.textContent = "开始朗读核对";
+        if (lastSpeechTranscript && !els.speechScore.classList.contains("visible")) {
+          showSpeechResult(lastSpeechTranscript);
+        }
+      });
+    }
+
+    function toggleListening() {
+      if (!current) return;
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        return;
+      }
+      if (canUseCloudRecording()) {
+        toggleCloudRecording();
+        return;
+      }
+      if (!recognition) return;
+      if (listening) {
+        recognition.stop();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      stopMicTest();
+      resetSpeechPanel();
+      try {
+        recognition.start();
+      } catch (error) {
+        els.speechStatus.textContent = "语音识别还在准备中，稍等一秒再试。";
+      }
+    }
+
+    function stopListening() {
+      clearTimeout(recognitionTimer);
+      clearTimeout(recorderTimer);
+      if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
+      if (recognition && listening) recognition.stop();
+    }
+
+    function resetSpeechPanel() {
+      if (location.protocol === "file:") {
+        els.speechStatus.textContent = "当前是 file 本地文件页面。云端识别需要从桌面快捷方式或 HTTPS 部署地址打开。";
+      } else {
+        els.speechStatus.textContent = canUseCloudRecording()
+          ? "点“开始朗读核对”，录音会上传到云端识别。"
+          : "当前浏览器不支持录音上传，将尝试浏览器自带识别。";
+      }
+      els.speechHeard.textContent = "";
+      els.speechHeard.classList.remove("visible");
+      els.speechScore.textContent = "";
+      els.speechScore.className = "speech-score";
+    }
+
+    function canUseCloudRecording() {
+      return Boolean(navigator.mediaDevices?.getUserMedia && window.MediaRecorder && location.protocol !== "file:");
+    }
+
+    async function toggleCloudRecording() {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      stopMicTest();
+      resetSpeechPanel();
+
+      try {
+        recorderStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            channelCount: 1
+          }
+        });
+        recorderChunks = [];
+        const mimeType = chooseRecordingMimeType();
+        mediaRecorder = new MediaRecorder(recorderStream, mimeType ? { mimeType } : undefined);
+        mediaRecorder.addEventListener("dataavailable", event => {
+          if (event.data.size) recorderChunks.push(event.data);
+        });
+        mediaRecorder.addEventListener("stop", handleRecordingStop, { once: true });
+        mediaRecorder.start();
+        els.listenBtn.textContent = "停止并核对";
+        els.speechStatus.textContent = "正在录音，请读出当前英文。读完可点“停止并核对”。";
+        recorderTimer = setTimeout(() => {
+          if (mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop();
+        }, 8500);
+      } catch (error) {
+        els.speechStatus.textContent = error.name === "NotAllowedError"
+          ? "麦克风权限被拒绝，请允许浏览器使用麦克风。"
+          : "无法开始录音，请检查浏览器和麦克风权限。";
+      }
+    }
+
+    async function handleRecordingStop() {
+      clearTimeout(recorderTimer);
+      els.listenBtn.textContent = "开始朗读核对";
+      if (recorderStream) {
+        recorderStream.getTracks().forEach(track => track.stop());
+        recorderStream = null;
+      }
+
+      const mimeType = mediaRecorder?.mimeType || "audio/webm";
+      const audioBlob = new Blob(recorderChunks, { type: mimeType });
+      recorderChunks = [];
+      if (!audioBlob.size) {
+        els.speechStatus.textContent = "没有录到声音，请靠近麦克风再试一次。";
+        return;
+      }
+
+      els.speechStatus.textContent = "正在上传云端识别...";
+      els.listenBtn.disabled = true;
+      try {
+        const response = await fetch(transcribeEndpoint(), {
+          method: "POST",
+          headers: {
+            "Content-Type": mimeType
+          },
+          body: audioBlob
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || "云端识别失败。");
+        }
+        if (!payload.text) {
+          els.speechStatus.textContent = "云端没有识别到英文，请再读清楚一点。";
+          return;
+        }
+        showSpeechResult(payload.text);
+      } catch (error) {
+        els.speechStatus.textContent = `云端识别失败：${error.message}`;
+      } finally {
+        els.listenBtn.disabled = false;
+      }
+    }
+
+    function chooseRecordingMimeType() {
+      const candidates = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4",
+        "audio/aac"
+      ];
+      return candidates.find(type => MediaRecorder.isTypeSupported(type)) || "";
+    }
+
+    function transcribeEndpoint() {
+      const config = window.ENGLISH_TRAINER_CONFIG || {};
+      const apiBaseUrl = String(config.API_BASE_URL || "").replace(/\/$/, "");
+      return apiBaseUrl ? `${apiBaseUrl}/api/transcribe` : "api/transcribe";
+    }
+
+    async function toggleMicTest() {
+      if (micStream) {
+        stopMicTest();
+        return;
+      }
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        els.micStatus.textContent = "当前浏览器不支持麦克风检测。";
+        els.micTestBtn.disabled = true;
+        return;
+      }
+
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+            channelCount: 1
+          }
+        });
+        const track = micStream.getAudioTracks()[0];
+        if (!track) {
+          els.micStatus.textContent = "浏览器没有返回音频输入轨道，请检查默认麦克风。";
+          stopMicTest();
+          return;
+        }
+        els.micTestBtn.textContent = "停止麦克风测试";
+        els.micStatus.textContent = `已接入：${track.label || "默认麦克风"}，状态 ${track.readyState}`;
+        await startMicMeter(micStream);
+      } catch (error) {
+        els.micStatus.textContent = error.name === "NotAllowedError"
+          ? "麦克风权限被拒绝，请在浏览器地址栏左侧允许麦克风。"
+          : "无法打开麦克风，请检查输入设备是否可用。";
+      }
+    }
+
+    async function startMicMeter(stream) {
+      micAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+      if (micAudioContext.state === "suspended") {
+        await micAudioContext.resume();
+      }
+      micSource = micAudioContext.createMediaStreamSource(stream);
+      micAnalyser = micAudioContext.createAnalyser();
+      micAnalyser.fftSize = 2048;
+      micAnalyser.smoothingTimeConstant = 0.35;
+      micSource.connect(micAnalyser);
+
+      const timeData = new Uint8Array(micAnalyser.fftSize);
+      const freqData = new Uint8Array(micAnalyser.frequencyBinCount);
+      const tick = () => {
+        micAnalyser.getByteTimeDomainData(timeData);
+        micAnalyser.getByteFrequencyData(freqData);
+        let rmsSum = 0;
+        for (const value of timeData) {
+          const centered = value - 128;
+          rmsSum += centered * centered;
+        }
+        let freqSum = 0;
+        for (const value of freqData) {
+          freqSum += value;
+        }
+        const rms = Math.sqrt(rmsSum / timeData.length);
+        const averageFreq = freqSum / freqData.length;
+        const level = Math.min(100, Math.round(Math.max(rms * 12, averageFreq * 1.8)));
+        const track = stream.getAudioTracks()[0];
+        const trackState = track ? `${track.readyState}${track.muted ? "，已静音" : ""}` : "无音轨";
+        els.micMeterFill.style.width = `${level}%`;
+        if (level > 3) {
+          els.micStatus.textContent = `麦克风有输入，音量 ${level}% · 音轨 ${trackState} · 音频 ${micAudioContext.state}`;
+        } else {
+          els.micStatus.textContent = `已接入但输入很弱，音量 ${level}% · 音轨 ${trackState} · 音频 ${micAudioContext.state}`;
+        }
+        micAnimationId = requestAnimationFrame(tick);
+      };
+      tick();
+    }
+
+    function stopMicTest() {
+      if (micAnimationId) cancelAnimationFrame(micAnimationId);
+      micAnimationId = null;
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
+      }
+      if (micAudioContext) {
+        micAudioContext.close();
+        micAudioContext = null;
+      }
+      micSource = null;
+      micAnalyser = null;
+      els.micMeterFill.style.width = "0%";
+      els.micStatus.textContent = "麦克风测试已停止";
+      els.micTestBtn.textContent = "测试麦克风";
+    }
+
+    function showSpeechResult(transcript) {
+      const expected = normalizeSpeech(current.en);
+      const heard = normalizeSpeech(transcript);
+      const score = similarity(expected, heard);
+      const percent = Math.round(score * 100);
+      const passed = current.type === "word" ? score >= 0.82 : score >= 0.74;
+
+      els.speechStatus.textContent = passed ? "读得不错，可以点“答对”。" : "有些地方没对上，可以再读一遍。";
+      els.speechHeard.textContent = `识别到：${transcript}`;
+      els.speechHeard.classList.add("visible");
+      els.speechScore.textContent = `匹配度 ${percent}% · ${passed ? "通过" : "再试试"}`;
+      els.speechScore.className = `speech-score visible ${passed ? "good" : "try"}`;
+    }
+
+    function normalizeSpeech(value) {
+      return String(value)
+        .toLowerCase()
+        .replace(/['’]/g, "")
+        .replace(/[^a-z0-9 ]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function similarity(a, b) {
+      if (!a && !b) return 1;
+      if (!a || !b) return 0;
+      const distance = levenshtein(a, b);
+      return 1 - distance / Math.max(a.length, b.length);
+    }
+
+    function levenshtein(a, b) {
+      const previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+      for (let i = 1; i <= a.length; i += 1) {
+        let last = i - 1;
+        previous[0] = i;
+        for (let j = 1; j <= b.length; j += 1) {
+          const old = previous[j];
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          previous[j] = Math.min(previous[j] + 1, previous[j - 1] + 1, last + cost);
+          last = old;
+        }
+      }
+      return previous[b.length];
+    }
+
+    function saveProgress() {
+      localStorage.setItem("englishTrainerStats", JSON.stringify(stats));
+      localStorage.setItem("englishTrainerWrongIds", JSON.stringify([...wrongIds]));
+    }
+
+    function createTip(text) {
+      const tip = document.createElement("p");
+      tip.className = "tip";
+      tip.textContent = text;
+      return tip;
+    }
+
+    function shuffle(items) {
+      const list = [...items];
+      for (let i = list.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [list[i], list[j]] = [list[j], list[i]];
+      }
+      return list;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    [els.typeFilter, els.sceneFilter, els.modeFilter].forEach(control => {
+      control.addEventListener("change", resetRound);
+    });
+
+    els.finishBtn.addEventListener("click", reveal);
+    els.rightBtn.addEventListener("click", () => markResult(true));
+    els.wrongBtn.addEventListener("click", () => markResult(false));
+    els.nextBtn.addEventListener("click", skipOrRestart);
+    els.speakBtn.addEventListener("click", speak);
+    els.micTestBtn.addEventListener("click", toggleMicTest);
+    els.listenBtn.addEventListener("click", toggleListening);
+    els.reviewWrongBtn.addEventListener("click", startWrongReview);
+
+    setupSpeechRecognition();
+    initScenes();
+    renderHistory();
+    renderWrongMenu();
+    resetRound();
+
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+  </script>
+</body>
+</html>
