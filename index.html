@@ -452,6 +452,10 @@
     .wrong { background: var(--bad); color: #fff; }
     .ghost { border-color: var(--line); color: var(--brand); }
 
+    .voice-feature {
+      display: none !important;
+    }
+
     .side {
       padding: 16px;
       display: grid;
@@ -639,7 +643,7 @@
             <p class="prompt-text" id="promptText">Ready?</p>
             <div class="prompt-phonetic" id="promptPhonetic"></div>
           </div>
-          <div class="speech-panel" id="speechPanel">
+          <div class="speech-panel voice-feature" id="speechPanel">
             <div class="speech-status" id="speechStatus">点“开始朗读核对”，读出当前英文。</div>
             <div class="speech-heard" id="speechHeard"></div>
             <div class="speech-score" id="speechScore"></div>
@@ -660,8 +664,8 @@
 
         <div class="actions">
           <button class="btn ghost" id="speakBtn" type="button">播放读音</button>
-          <button class="btn ghost" id="micTestBtn" type="button">测试麦克风</button>
-          <button class="btn ghost" id="listenBtn" type="button">开始朗读核对</button>
+          <button class="btn ghost voice-feature" id="micTestBtn" type="button">测试麦克风</button>
+          <button class="btn ghost voice-feature" id="listenBtn" type="button">开始朗读核对</button>
           <button class="btn primary" id="finishBtn" type="button">完成，显示答案</button>
           <button class="btn correct" id="rightBtn" type="button" disabled>答对</button>
           <button class="btn wrong" id="wrongBtn" type="button" disabled>答错</button>
