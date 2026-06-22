@@ -532,68 +532,125 @@
       }
 
       header {
-        padding: 16px;
-      }
-
-      main {
-        padding: 12px;
-        gap: 12px;
-      }
-
-      .stats {
+        padding: 10px 12px;
         gap: 8px;
       }
 
+      h1 {
+        font-size: 22px;
+      }
+
+      .subtitle {
+        display: none;
+      }
+
+      main {
+        padding: 8px;
+        gap: 8px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        font-size: 11px;
+      }
+
       .stat {
-        padding: 8px 10px;
+        min-width: 0;
+        padding: 5px 6px;
+      }
+
+      .stat strong {
+        font-size: 16px;
       }
 
       .stage {
         order: 1;
-        padding: 18px 12px;
+        gap: 10px;
+        padding: 10px 8px;
       }
 
       .progress-wrap {
-        order: 2;
+        order: 3;
+        gap: 5px;
+        padding: 7px 10px;
       }
 
       .actions {
-        order: 3;
+        order: 2;
       }
 
       .toolbar {
         order: 4;
+        gap: 8px;
+        padding: 10px;
         border-top: 1px solid var(--line);
         border-bottom: 0;
         background: rgba(255, 253, 248, .92);
       }
 
       .prompt {
-        min-height: 190px;
-        padding: 28px 18px;
+        min-height: 128px;
+        padding: 18px 12px;
       }
 
       .prompt::before {
-        inset: 8px;
+        inset: 6px;
+      }
+
+      .prompt-text {
+        font-size: clamp(28px, 9vw, 42px);
+      }
+
+      .sentence .prompt-text {
+        font-size: clamp(21px, 7vw, 30px);
+      }
+
+      .prompt-phonetic {
+        font-size: 16px;
+      }
+
+      .tagline {
+        display: none;
+      }
+
+      .answer {
+        padding: 10px 12px;
+        gap: 6px;
+      }
+
+      .meaning {
+        font-size: 17px;
+      }
+
+      .phonetic,
+      .example {
+        font-size: 13px;
       }
 
       .actions {
         position: sticky;
         bottom: 0;
         z-index: 5;
-        justify-content: stretch;
-        padding: 10px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+        padding: 8px;
       }
 
       .actions .btn {
-        flex: 1 1 calc(50% - 8px);
+        min-height: 38px;
         min-width: 0;
-        padding: 0 10px;
-        font-size: 14px;
+        padding: 0 6px;
+        font-size: 13px;
       }
 
       .side {
-        padding: 12px;
+        padding: 8px;
+      }
+
+      .side section {
+        padding: 10px;
       }
     }
   </style>
