@@ -802,6 +802,27 @@
       { id: "p-again", type: "phrase", scene: "工作", en: "Could you say that again?", zh: "你能再说一遍吗？", phonetic: "/kood yoo say that uh-gen/", example: "Sorry, could you say that again?" }
     ];
 
+    const wordApplications = {
+      "w-breakfast": { en: "I usually have breakfast at seven.", zh: "我通常七点吃早餐。", phonetic: "/eye yoo-zhoo-uh-lee hav brek-fast at sev-en/" },
+      "w-lunch": { en: "Let's have lunch together.", zh: "我们一起吃午餐吧。", phonetic: "/lets hav lunch tuh-geth-er/" },
+      "w-dinner": { en: "Dinner is ready.", zh: "晚餐准备好了。", phonetic: "/din-er iz red-ee/" },
+      "w-water": { en: "Can I have some water?", zh: "我可以喝点水吗？", phonetic: "/kan eye hav sum waw-ter/" },
+      "w-coffee": { en: "I need a cup of coffee.", zh: "我需要一杯咖啡。", phonetic: "/eye need uh kup uv kaw-fee/" },
+      "w-receipt": { en: "Can I get a receipt?", zh: "我可以拿一张小票吗？", phonetic: "/kan eye get uh ri-seet/" },
+      "w-discount": { en: "Is there a discount?", zh: "有折扣吗？", phonetic: "/iz thair uh dis-kount/" },
+      "w-cashier": { en: "The cashier is over there.", zh: "收银员在那边。", phonetic: "/thuh ka-sheer iz oh-ver thair/" },
+      "w-umbrella": { en: "Take an umbrella with you.", zh: "带把雨伞。", phonetic: "/tayk an um-brel-uh with yoo/" },
+      "w-wallet": { en: "I forgot my wallet.", zh: "我忘带钱包了。", phonetic: "/eye fer-got my wol-it/" },
+      "w-keys": { en: "Where are my keys?", zh: "我的钥匙在哪里？", phonetic: "/wair ar my keez/" },
+      "w-subway": { en: "I take the subway to work.", zh: "我坐地铁去上班。", phonetic: "/eye tayk thuh sub-way tuh werk/" },
+      "w-ticket": { en: "I bought a train ticket.", zh: "我买了一张火车票。", phonetic: "/eye bawt uh trayn tik-it/" },
+      "w-station": { en: "The station is crowded.", zh: "车站很拥挤。", phonetic: "/thuh stay-shun iz krow-did/" },
+      "w-laundry": { en: "I need to do the laundry.", zh: "我需要洗衣服。", phonetic: "/eye need tuh doo thuh lawn-dree/" },
+      "w-trash": { en: "Please take out the trash.", zh: "请把垃圾拿出去。", phonetic: "/pleez tayk out thuh trash/" },
+      "w-meeting": { en: "The meeting starts at nine.", zh: "会议九点开始。", phonetic: "/thuh mee-ting starts at nyn/" },
+      "w-deadline": { en: "The deadline is Friday.", zh: "截止日期是星期五。", phonetic: "/thuh ded-line iz fry-day/" }
+    };
+
     const byId = new Map(bank.map(item => [item.id, item]));
     const els = {
       typeFilter: document.querySelector("#typeFilter"),
@@ -886,16 +907,58 @@
       });
     }
 
+    function getItemById(id) {
+      if (byId.has(id)) return byId.get(id);
+      if (id.startsWith("app-")) {
+        const wordId = id.slice(4);
+        const word = byId.get(wordId);
+        return word ? createApplicationQuestion(word) : null;
+      }
+      return null;
+    }
+
+    function createApplicationQuestion(word) {
+      const application = wordApplications[word.id] || {
+        en: word.example,
+        zh: `包含“${word.zh}”的应用短句。`,
+        phonetic: `关键词 ${word.en}: ${word.phonetic}`
+      };
+      return {
+        id: `app-${word.id}`,
+        type: "phrase",
+        scene: word.scene,
+        en: application.en,
+        zh: application.zh,
+        phonetic: application.phonetic,
+        example: `关键词：${word.en}  -  ${word.zh}`
+      };
+    }
+
+    function buildPracticeQueue(items) {
+      const selectedType = els.typeFilter.value;
+      if (selectedType === "word") {
+        return shuffle(items.filter(item => item.type === "word").map(item => item.id));
+      }
+      if (selectedType === "phrase") {
+        return shuffle(items.filter(item => item.type === "phrase").map(item => item.id));
+      }
+
+      const words = shuffle(items.filter(item => item.type === "word"));
+      if (!words.length) return shuffle(items.map(item => item.id));
+
+      return words.flatMap(word => [word.id, `app-${word.id}`]);
+    }
+
     function resetRound() {
       reviewMode = false;
       completedIds = new Set();
-      pool = shuffle(filteredBank().map(item => item.id));
+      pool = buildPracticeQueue(filteredBank()).reverse();
       roundTotal = pool.length;
       pickNext();
     }
 
     function startWrongReview() {
-      const ids = [...wrongIds].filter(id => byId.has(id));
+      const ids = [...wrongIds].filter(id => getItemById(id));
       if (!ids.length) {
         renderEmpty("现在没有错题，可以继续正常练习。");
         return;
@@ -928,7 +991,11 @@
       }
 
       const nextId = pool.pop();
-      current = byId.get(nextId);
+      current = getItemById(nextId);
+      if (!current) {
+        pickNext();
+        return;
+      }
       renderCard();
     }
 
@@ -1039,7 +1106,7 @@
     }
 
     function renderWrongMenu() {
-      const items = [...wrongIds].map(id => byId.get(id)).filter(Boolean);
+      const items = [...wrongIds].map(id => getItemById(id)).filter(Boolean);
       els.wrongList.innerHTML = "";
       els.wrongSummary.textContent = items.length ? `还有 ${items.length} 个错题需要复练。` : "暂无错题。";
       els.reviewWrongBtn.disabled = !items.length;
