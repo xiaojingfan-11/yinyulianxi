@@ -872,6 +872,7 @@
     let roundTotal = 0;
     let completedIds = new Set();
     let wrongIds = new Set(JSON.parse(localStorage.getItem("englishTrainerWrongIds") || "[]"));
+    let seenIds = new Set(JSON.parse(localStorage.getItem("englishTrainerSeenIds") || "[]"));
     let history = JSON.parse(localStorage.getItem("englishTrainerHistory") || "[]");
     let stats = JSON.parse(localStorage.getItem("englishTrainerStats") || '{"done":0,"right":0,"wrong":0}');
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -949,10 +950,28 @@
       return words.flatMap(word => [word.id, `app-${word.id}`]);
     }
 
+    function saveSeenIds() {
+      localStorage.setItem("englishTrainerSeenIds", JSON.stringify([...seenIds]));
+    }
+
+    function buildFreshPracticeQueue() {
+      const allIds = buildPracticeQueue(filteredBank());
+      if (!allIds.length) return [];
+
+      let freshIds = allIds.filter(id => !seenIds.has(id));
+      if (!freshIds.length) {
+        allIds.forEach(id => seenIds.delete(id));
+        saveSeenIds();
+        freshIds = allIds;
+      }
+
+      return freshIds;
+    }
+
     function resetRound() {
       reviewMode = false;
       completedIds = new Set();
-      pool = buildPracticeQueue(filteredBank()).reverse();
+      pool = buildFreshPracticeQueue().reverse();
       roundTotal = pool.length;
       pickNext();
     }
@@ -995,6 +1014,10 @@
       if (!current) {
         pickNext();
         return;
+      }
+      if (!reviewMode) {
+        seenIds.add(current.id);
+        saveSeenIds();
       }
       renderCard();
     }
